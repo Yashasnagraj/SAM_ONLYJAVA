@@ -44,22 +44,34 @@ python light_flash_transition.py
 ## Inside whip_transition.py, modify the create_transition_video call for custom behavior:
 
 create_transition_video(
+
     input_a='input_videos/clip_a.mp4',         # Path to first video
+    
     input_b='input_videos/clip_b.mp4',         # Path to second video
+    
     output='output_videos/whip_output.mp4',    # Output file path
+    
     transition_duration=1.0,                   # Duration of the transition in seconds
+    
     blur_strength=100,                         # Motion blur intensity (higher = smoother)
+    
     direction='left'                           # Direction: 'left', 'right', 'up', 'down'
+    
 )
 
 
 ## Inside light_transition.py, modify the create_transition_video call for custom behavior:
 
 light_flash_smooth_transition(
+
     input_a_path=input_a,
+
     input_b_path=input_b,
+    
     output_path=output,
+    
     transition_duration=1.5  # Duration (in seconds) of the full transition
+
 )
 
 
