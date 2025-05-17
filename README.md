@@ -18,6 +18,7 @@ project-root/
 ├── light_flash_transition.py   # Script for flash style light transition
 
 ├── ... # (Other transition scripts can be added here)
+
 └── README.md
 
 -----------------------------------------------------
