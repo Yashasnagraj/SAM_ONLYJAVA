@@ -17,6 +17,8 @@ project-root/
 
 ├── light_flash_transition.py   # Script for flash style light transition
 
+├── blur_transition.py # Script for blur-based smooth transition
+
 ├── ... # (Other transition scripts can be added here)
 
 └── README.md
@@ -36,6 +38,7 @@ project-root/
 ## Run Command
 python whip_transition.py
 python light_flash_transition.py
+python blur_transition.py
 
 -----------------------------------------------------
 
@@ -72,6 +75,17 @@ light_flash_smooth_transition(
     
     transition_duration=1.5  # Duration (in seconds) of the full transition
 
+)
+
+
+
+## Inside blur_transition.py:
+
+blur_transition(
+    input_a='input_videos/clip_a.mp4',         # Path to first video
+    input_b='input_videos/clip_b.mp4',         # Path to second video
+    output='output_videos/blur_output.mp4',    # Output file path
+    transition_duration=1.5                    # Duration of the blur transition in seconds
 )
 
 
