@@ -1,6 +1,6 @@
 # Video Transitions Toolkit
 
-This project contains a collection of video transition effects implemented in Java using FFmpeg commands. It is structured for collaboration, allowing team members to contribute new transition effects with ease.
+This project contains a collection of video transition effects implemented in pure Java using JavaCV. It is structured for collaboration, allowing team members to contribute new transition effects with ease.
 
 -----------------------------------------------------
 ##  Directory Structure
@@ -15,13 +15,19 @@ project-root/
 
 ├── Java Implementation/
 
-│   ├── TransitionEngine.java       # Main class with FFmpeg command generators
+│   ├── TransitionEngine.java       # Main class with transition methods
 
-│   ├── FFmpegExecutor.java         # Utility for executing FFmpeg commands
+│   ├── JavaTransitionEngine.java   # Implementation using JavaCV
 
 │   ├── TransitionEngineDemo.java   # Demo class showing usage examples
 
-│   └── ffmpeg-6.1.1-full_build/    # FFmpeg executable files
+│   └── (deprecated FFmpeg files)   # Legacy files, no longer used
+
+├── Android Example/
+
+│   ├── MainActivity.java           # Example Android implementation
+
+│   └── activity_main.xml           # Example Android layout
 
 │
 
@@ -33,7 +39,7 @@ project-root/
 ## Requirements
 
 - Java 8 or higher
-- FFmpeg (included in the Java Implementation directory)
+- JavaCV library (for OpenCV integration)
 
 
 -----------------------------------------------------
@@ -43,125 +49,135 @@ project-root/
 Compile the Java files:
 ```
 cd "Java Implementation"
-javac TransitionEngine.java FFmpegExecutor.java TransitionEngineDemo.java
+javac -cp "path/to/javacv-jars/*" TransitionEngine.java JavaTransitionEngine.java TransitionEngineDemo.java
 ```
 
 Run the demo:
 ```
-java TransitionEngineDemo
+java -cp ".;path/to/javacv-jars/*" TransitionEngineDemo
 ```
 
-Or use the batch files to create transitions directly:
-```
-create_transition.bat  # Creates a fade transition
-create_glitch.bat      # Creates a glitch transition
-create_whip.bat        # Creates a whip pan transition
-create_zoom.bat        # Creates a zoom transition
-```
+Note: You'll need to download the JavaCV library and include it in your classpath. You can download it from: https://github.com/bytedeco/javacv
 
 -----------------------------------------------------
 
-## Configurable Parameters
+## Available Transitions
 
-You can modify the batch files to customize the transition parameters:
+The toolkit provides the following video transitions:
 
-### create_transition.bat (Fade Transition)
-```
-ffmpeg -y -i "input_videos/clip_a.mp4" -i "input_videos/clip_b.mp4" -filter_complex "[0:v]scale=960:540,setsar=1[v0];[1:v]scale=960:540,setsar=1[v1];[v0][v1]xfade=transition=fade:duration=1.0:offset=3,format=yuv420p" -c:v libx264 -preset fast -crf 18 "output_videos/fade_output.mp4"
-```
+1. **Fade Transition**: A smooth crossfade between two videos
+   ```java
+   TransitionEngine.applyFadeTransition(input1, input2, output, duration);
+   ```
 
-### create_glitch.bat (Glitch Transition)
-```
-ffmpeg -y -i "input_videos/clip_a.mp4" -i "input_videos/clip_b.mp4" -filter_complex "[0:v]scale=960:540,setsar=1[v0];[1:v]scale=960:540,setsar=1[v1];[v0][v1]xfade=transition=fade:duration=1.2:offset=3,noise=c0s=25:allf=t+u*2.5,rgbashift=rh=5:bh=5:gh=2,format=yuv420p" -c:v libx264 -preset fast -crf 18 "output_videos/glitch_output.mp4"
-```
+2. **Glitch Transition**: A digital glitch effect with RGB shifting and noise
+   ```java
+   TransitionEngine.applyGlitchTransition(input1, input2, output, duration, glitchStrength);
+   ```
 
-### create_whip.bat (Whip Pan Transition)
-```
-ffmpeg -y -i "input_videos/clip_a.mp4" -i "input_videos/clip_b.mp4" -filter_complex "[0:v]scale=960:540,setsar=1[v0];[1:v]scale=960:540,setsar=1[v1];[v0][v1]xfade=transition=slideleft:duration=1.0:offset=3,format=yuv420p" -c:v libx264 -preset fast -crf 18 "output_videos/whip_output.mp4"
-```
+3. **Zoom Transition**: A zoom in/out effect between videos
+   ```java
+   TransitionEngine.applyZoomTransition(input1, input2, output, duration, zoomFactor);
+   ```
 
-### create_zoom.bat (Zoom Transition)
-```
-ffmpeg -y -i "input_videos/clip_a.mp4" -i "input_videos/clip_b.mp4" -filter_complex "[0:v]scale=960:540,setsar=1[v0];[1:v]scale=960:540,setsar=1[v1];[v0][v1]xfade=transition=wiperight:duration=1.5:offset=3,format=yuv420p" -c:v libx264 -preset fast -crf 18 "output_videos/wipe_output.mp4"
-```
+4. **Blur Transition**: A blur effect that transitions between videos
+   ```java
+   TransitionEngine.applyBlurTransition(input1, input2, output, duration, maxBlur);
+   ```
+
+5. **Whip Pan Transition**: A fast directional swipe with motion blur
+   ```java
+   TransitionEngine.applyWhipPanTransition(input1, input2, output, duration, direction, blurStrength);
+   ```
+
+6. **Spin Transition**: A rotating transition between videos
+   ```java
+   TransitionEngine.applySpinTransition(input1, input2, output, duration);
+   ```
+
+7. **Light Flash Transition**: A bright flash effect between videos
+   ```java
+   TransitionEngine.applyLightFlashTransition(input1, input2, output, duration);
+   ```
 
 
 -----------------------------------------------------
 
 ## Java Implementation
 
-The Java implementation provides a set of classes that generate FFmpeg command strings for various video transitions. These commands can be executed to create transitions between video clips.
+The Java implementation provides a set of classes that process videos using JavaCV (a Java wrapper for OpenCV) to create transitions between video clips.
 
 ### Requirements
 
 - Java 8 or higher
-- FFmpeg installed on the system (for executing the generated commands)
+- JavaCV library (for OpenCV integration)
 
 ### Classes
 
 #### TransitionEngine
 
-The main class that provides static methods for generating FFmpeg command strings for different transitions.
+The main class that provides static methods for applying various video transitions.
 
 ```java
 // Example usage
-String fadeCommand = TransitionEngine.getFadeCommand(
+boolean success = TransitionEngine.applyFadeTransition(
     "input1.mp4",
     "input2.mp4",
     "output.mp4",
     1.0  // duration in seconds
 );
-```
 
-#### FFmpegExecutor
-
-A utility class for executing FFmpeg commands and handling their output.
-
-```java
-// Example usage
-try {
-    int exitCode = FFmpegExecutor.executeCommand(fadeCommand);
-    if (exitCode == 0) {
-        System.out.println("Transition created successfully!");
-    } else {
-        System.out.println("Error creating transition: " + exitCode);
-    }
-} catch (Exception e) {
-    e.printStackTrace();
+if (success) {
+    System.out.println("Transition created successfully!");
+} else {
+    System.out.println("Error creating transition");
 }
 ```
 
-### Available Java Transitions
+#### JavaTransitionEngine
 
-1. **Fade Transition**: `getFadeCommand(input1, input2, output, duration)`
-2. **Glitch Transition**: `getGlitchCommand(input1, input2, output, duration, glitchStrength)`
-3. **Zoom Transition**: `getZoomCommand(input1, input2, output, duration, zoomFactor)`
-4. **Blur Transition**: `getBlurCommand(input1, input2, output, duration, maxBlur)`
-5. **Whip Pan Transition**: `getWhipPanCommand(input1, input2, output, duration, direction, blurStrength)`
-6. **Spin Transition**: `getSpinCommand(input1, input2, output, duration)`
-7. **Light Flash Transition**: `getLightFlashCommand(input1, input2, output, duration)`
+The implementation class that uses JavaCV to process videos frame-by-frame and apply transitions.
+
+### Implementation Details
+
+- All transitions are processed frame-by-frame using JavaCV
+- No external dependencies on FFmpeg commands
+- Pure Java solution for better integration with Java applications
+- Frame-by-frame processing allows for more precise control over effects
 
 ### Android Integration
 
 To use this in an Android application:
 
-1. Include the TransitionEngine class in your project
-2. Use a library like "mobile-ffmpeg" to execute the FFmpeg commands on Android
-3. Handle the file paths appropriately for Android's storage system
+1. Include the TransitionEngine and JavaTransitionEngine classes in your project
+2. Add JavaCV dependencies to your Android project
+3. Process videos in a background thread to avoid blocking the UI
 
-Example Android integration (pseudo-code):
+Example Android integration:
 
 ```java
-// Generate the command
-String command = TransitionEngine.getFadeCommand(input1, input2, output, 1.0);
+// In your Activity or Fragment
+private void applyTransition() {
+    // Show progress indicator
+    progressBar.setVisibility(View.VISIBLE);
 
-// Execute with mobile-ffmpeg
-int rc = FFmpeg.execute(command);
-if (rc == RETURN_CODE_SUCCESS) {
-    Log.i(TAG, "Command execution completed successfully.");
-} else {
-    Log.i(TAG, "Command execution failed with rc=" + rc);
+    // Run in background thread
+    new Thread(() -> {
+        boolean success = TransitionEngine.applyFadeTransition(input1, input2, output, 1.0);
+
+        // Update UI on main thread
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            if (success) {
+                Toast.makeText(this, "Transition completed!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Error creating transition", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }).start();
 }
 ```
+
+A complete Android example is provided in the `Android Example` directory.
 
 -----------------------------------------------------
